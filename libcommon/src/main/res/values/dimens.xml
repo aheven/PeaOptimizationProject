@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 状态栏高度 -->
+    <dimen name="height_status_bar">45dp</dimen>
+
+    <!-- progress外边框长度 -->
+    <dimen name="height_progress_outer">150dp</dimen>
+
+</resources>

@@ -1,0 +1,87 @@
+def versions = [:]
+versions.android_gradle_plugin = '7.1.0-alpha01'
+versions.kotlin = "1.5.0"
+versions.core_ktx = "1.5.0"
+versions.appcompat = "1.2.0"
+versions.material = "1.2.1"
+versions.arouter = "1.5.2"
+versions.multidex = "2.0.1"
+versions.hilt = "2.37"
+versions.constraintlayout = "2.0.4"
+versions.titlebar = "8.6"
+versions.navigation = "2.3.5"
+versions.retrofit = "2.9.0"
+versions.okhttp = "3.12.0"
+versions.okhttpLoggingVersion = "4.7.2"
+versions.glide = "4.11.0"
+
+versions.junit = "4.13.2"
+versions.androidx_junit = "1.1.2"
+versions.espresso = "3.3.0"
+def deps = [:]
+
+def kotlin = [:]
+kotlin.plugin = "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlin"
+kotlin.stdlib = "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlin"
+deps.kotlin = kotlin
+
+def androidx = [:]
+androidx.core_ktx = "androidx.core:core-ktx:$versions.core_ktx"
+androidx.appcompat = "androidx.appcompat:appcompat:$versions.appcompat"
+androidx.material = "com.google.android.material:material:$versions.material"
+androidx.multidex = "androidx.multidex:multidex:$versions.multidex"
+deps.androidx = androidx
+
+def hilt = [:]
+hilt.plugin = "com.google.dagger:hilt-android-gradle-plugin:$versions.hilt"
+hilt.core = "com.google.dagger:hilt-android:$versions.hilt"
+hilt.compiler = "com.google.dagger:hilt-android-compiler:$versions.hilt"
+deps.hilt = hilt
+
+def navigation = [:]
+navigation.fragment_ktx = "androidx.navigation:navigation-fragment-ktx:$versions.navigation"
+navigation.ui_ktx = "androidx.navigation:navigation-ui-ktx:$versions.navigation"
+navigation.safe_args_plugin = "androidx.navigation:navigation-safe-args-gradle-plugin:$versions.navigation"
+deps.navigation = navigation
+
+def retrofit = [:]
+retrofit.core = "com.squareup.retrofit2:retrofit:$versions.retrofit"
+retrofit.gson = "com.squareup.retrofit2:converter-gson:$versions.retrofit"
+retrofit.okhttp = "com.squareup.okhttp3:okhttp:$versions.okhttp"
+retrofit.logger = "com.squareup.okhttp3:logging-interceptor:$versions.okhttpLoggingVersion"
+deps.retrofit = retrofit
+
+def glide = [:]
+glide.core = "com.github.bumptech.glide:glide:$versions.glide"
+glide.compiler = "com.github.bumptech.glide:compiler:$versions.glide"
+deps.glide = glide
+
+def test = [:]
+test.junit = "junit:junit:$versions.junit"
+test.androidx_junit = "androidx.test.ext:junit:$versions.androidx_junit"
+test.espresso = "androidx.test.espresso:espresso-core:$versions.espresso"
+deps.test = test
+
+deps.android_gradle_plugin = "com.android.tools.build:gradle:$versions.android_gradle_plugin"
+deps.constraintlayout = "androidx.constraintlayout:constraintlayout:$versions.constraintlayout"
+deps.titlebar = "com.github.getActivity:TitleBar:$versions.titlebar"
+deps.wechat = 'com.tencent.mm.opensdk:wechat-sdk-android-without-mta:+'
+
+ext.deps = deps
+
+def build_versions = [:]
+build_versions.min_sdk = 16
+build_versions.target_sdk = 30
+ext.build_versions = build_versions
+
+static def addRepos(RepositoryHandler handler) {
+    handler.google()
+    handler.mavenCentral()
+    handler.maven { url 'https://jitpack.io' }
+
+    //友盟
+//    handler.maven { url "https://jitpack.io" }
+//    handler.maven { url "http://repo.baichuan-android.taobao.com/content/groups/BaichuanRepositories/" }
+}
+
+ext.addRepos = this.&addRepos

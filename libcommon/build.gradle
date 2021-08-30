@@ -1,0 +1,79 @@
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    compileSdkVersion build_versions.target_sdk
+
+    defaultConfig {
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+        dataBinding true
+    }
+}
+
+dependencies {
+    api fileTree(dir: 'libs', include: ['*.jar'])
+
+    api deps.kotlin.stdlib
+
+    api deps.androidx.core_ktx
+    api deps.androidx.appcompat
+    api deps.androidx.material
+    api deps.androidx.multidex
+
+    api deps.constraintlayout
+    api deps.titlebar
+
+    api project(':libarr:ArouterLib')
+    api files('../libs/arouter-annotation-1.0.6.jar')
+    api files('../libs/umeng-common-9.4.0.jar')
+
+    implementation deps.hilt.core
+    kapt deps.hilt.compiler
+
+    api deps.navigation.fragment_ktx
+    api deps.navigation.ui_ktx
+
+    api(deps.retrofit.gson){
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    }
+    api(deps.retrofit.core){
+        exclude group: 'com.squareup.okhttp3', module: 'okhttp'
+    }
+    api deps.retrofit.okhttp
+    api deps.retrofit.logger
+    api(deps.glide.core) {
+        exclude group: "com.android.support"
+    }
+
+    api deps.wechat
+
+    testImplementation deps.test.junit
+    androidTestImplementation deps.test.androidx_junit
+    androidTestImplementation deps.test.espresso
+}

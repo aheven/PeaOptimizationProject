@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="login_height_search_edit">45dp</dimen>
+    <dimen name="login_margin_search_edit">50dp</dimen>
+    <dimen name="login_padding_search_edit">15dp</dimen>
+    <dimen name="login_line_width">65dp</dimen>
+</resources>

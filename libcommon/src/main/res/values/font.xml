@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- font size -->
+    <dimen name="font_size_small">12sp</dimen>
+    <dimen name="font_size_normal">14sp</dimen>
+    <dimen name="font_size_lage">16sp</dimen>
+
+    <!-- font color -->
+    <color name="font_color_normal">#333333</color>
+    <color name="font_color_gray">#999999</color>
+</resources>

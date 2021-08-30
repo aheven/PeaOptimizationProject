@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="NineGridView">
+        <!-- 宫格间距 -->
+        <attr name="grid_spacing" format="dimension" />
+        <!-- 单张图片时的最大大小 -->
+        <attr name="single_image_size" format="dimension" />
+        <!-- 平铺模式最大高度 -->
+        <attr name="tile_max_height" format="dimension" />
+        <!-- 单张图片的宽高比(宽/高) -->
+        <attr name="single_image_ratio" format="float" />
+        <!-- 单张图片的宽高比(宽/高) -->
+        <attr name="max_image_size" format="float" />
+        <!-- 单张图片的宽高比(宽/高) -->
+        <attr name="mode" format="enum">
+            <!-- 填充模式，类似于微信 -->
+            <enum name="mode_fill" value="0"/>
+            <!-- 网格模式，类似于QQ，4张图会 2X2布局 -->
+            <enum name="mode_grid" value="1"/>
+            <!-- 平铺网格模式 -->
+            <enum name="mode_tile" value="2"/>
+        </attr>
+    </declare-styleable>
+
+    <declare-styleable name="NineGridViewWrapper">
+        <attr name="android:textSize" format="dimension"/>
+    </declare-styleable>
+</resources>

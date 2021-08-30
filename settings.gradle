@@ -1,0 +1,12 @@
+rootProject.name = "PeaOptimizationProject"
+include ':app'
+include ':login'
+include ':libcommon'
+include ':libarr:ArouterLib'
+include ':libarr:ArouterCompiler'
+include ':libarr:UmengAbtest'
+include ':libarr:UmengAsms'
+include ':libarr:UmengApm'
+include ':user'
+include ':login-api'
+include ':user-api'

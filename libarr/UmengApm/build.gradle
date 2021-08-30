@@ -1,0 +1,2 @@
+configurations.maybeCreate("default")
+artifacts.add("default",file('umeng-apm-armeabi-v1.4.0.aar'))

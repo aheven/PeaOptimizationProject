@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFFFF</color>
+    <color name="default_bg">#F8F8F8</color>
+    
+    <color name="default_red">#ff0030</color>
+    <color name="default_dark_red">#AA0927</color>
+    
+    <color name="default_blue">#78A9F6</color>
+
+    <color name="default_bg_dialog">#99333333</color>
+</resources>

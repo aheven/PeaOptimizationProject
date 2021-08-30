@@ -1,0 +1,105 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+}
+
+android {
+    compileSdkVersion build_versions.target_sdk
+
+    flavorDimensions "default"
+
+    defaultConfig {
+        applicationId "com.mall.ninecommunity"
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled true
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("nine_community.keystore")
+            storePassword "jiujun9shows"
+            keyAlias "nine_community"
+            keyPassword "jiujun9shows"
+        }
+        official {
+            storeFile file("nine_community.keystore")
+            storePassword "jiujun9shows"
+            keyAlias "nine_community"
+            keyPassword "jiujun9shows"
+        }
+    }
+
+    productFlavors {
+        //(官方包)包名：com.mall.ninecommunity  签名：9a52de3e5c50d2e5d1375a41d00b6f24  签名文件：nine_community.keystore
+        product_official {
+            signingConfig signingConfigs.official
+            applicationId "com.mall.ninecommunity"
+            manifestPlaceholders = [package_name      : applicationId,
+                                    CHANNEL_VALUE     : "official",
+                                    UMENG_APPKEY_VALUE: "5e4678e5cb23d271b50003e5",
+                                    TENCENT_VALUE     : "1110040249",
+                                    WX_VALUE          : "wx04ce88dd34b158bd",
+                                    ShareTrace        : "d03b10152cb7fc1d",
+                                    JPUSH_PKGNAME     : applicationId,
+                                    JPUSH_APPKEY      : "a1b56fc3d455623e28477794",
+                                    JPUSH_CHANNEL     : "developer-default",
+                                    XIAOMI_APPID      : "2882303761518323349",
+                                    XIAOMI_APPKEY     : "5721832324349",
+                                    MEIZU_APPKEY      : "d577620787934cbe8cf2c845f4861cd3",
+                                    MEIZU_APPID       : "3291141",
+                                    OPPO_APPKEY       : "dd2687e04f0b4ac286388c2c39921372",
+                                    OPPO_APPID        : "30246513",
+                                    OPPO_APPSECRET    : "fc87ca602fcf48e6999b13d49862ce79",
+                                    VIVO_APPKEY       : "50330ea33f2b01e871d8",
+                                    VIVO_APPID        : "103831781"
+            ]
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
+    buildFeatures {
+        viewBinding true
+        dataBinding true
+    }
+}
+
+dependencies {
+    implementation project(':libcommon')
+    implementation project(':login')
+    implementation project(':login-api')
+    implementation project(':user')
+    implementation project(':user-api')
+
+    implementation deps.hilt.core
+    kapt deps.hilt.compiler
+    kapt deps.glide.compiler
+
+    implementation files('../libs/utdid4all-1.5.2.1-proguard.jar')
+    implementation project(':libarr:UmengAbtest')
+    implementation project(':libarr:UmengAsms')
+    implementation project(':libarr:UmengApm')
+
+    testImplementation deps.test.junit
+    androidTestImplementation deps.test.androidx_junit
+    androidTestImplementation deps.test.espresso
+}
