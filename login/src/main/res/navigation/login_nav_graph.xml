@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph.xml"
+    app:startDestination="@id/loginByCodeFragment">
+
+    <fragment
+        android:id="@+id/loginByCodeFragment"
+        android:name="com.mall.login.fragment.LoginByCodeFragment"
+        android:label="LoginByCodeFragment"
+        tools:layout="@layout/login_fragment_code">
+        <action
+            android:id="@+id/action_loginByCodeFragment_to_loginTrackBindPhoneFragment"
+            app:destination="@id/loginTrackBindPhoneFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginTrackBindPhoneFragment"
+        android:name="com.mall.login.fragment.LoginTrackBindPhoneFragment"
+        android:label="LoginTrackBindPhoneFragment"
+        tools:layout="@layout/login_fragment_track_bind_phone">
+        <action
+            android:id="@+id/action_loginTrackBindPhoneFragment_to_logIninvitationCodefragment"
+            app:destination="@id/loginInvitationCodeFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/loginInvitationCodeFragment"
+        android:name="com.mall.login.fragment.LoginInvitationCodeFragment"
+        android:label="LoginInvitationCodeFragment"
+        tools:layout="@layout/login_fragment_invatation_code" />
+</navigation>

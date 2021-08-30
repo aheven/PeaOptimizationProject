@@ -1,0 +1,16 @@
+<resources>
+    <string name="login_hint_phone_edit">请输入手机号</string>
+    <string name="login_hint_phone_code_edit">请输入验证码</string>
+    <string name="login_phone_code">验证码</string>
+    <string name="login">登录</string>
+    <string name="login_by_pwd">账号密码登录</string>
+    <string name="login_by_thread">第三方登录</string>
+    <string name="login_agreement">已阅读并同意 《用户协议》《隐私协议》</string>
+
+    <string name="login_phone">手机号</string>
+    <string name="login_bind_phone">确认绑定手机</string>
+    <string name="login_invitation_code">请输入分享人的邀请码或手机号</string>
+
+    <string name="login_bind_code">确认绑定</string>
+    <string name="login_skip_input_code">跳过，以后再说</string>
+</resources>

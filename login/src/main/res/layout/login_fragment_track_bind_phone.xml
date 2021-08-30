@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewmodel"
+            type="com.mall.login.viewmodel.LoginViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:fitsSystemWindows="true">
+
+        <com.hjq.bar.TitleBar
+            android:id="@+id/titleBar"
+            style="@style/TitleTransparent"
+            android:fitsSystemWindows="true"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:titleBarListener="@{`default`}" />
+
+        <TextView
+            android:id="@+id/login_phone"
+            style="@style/LoginTextTrack"
+            android:text="@string/login_phone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/titleBar" />
+
+        <com.mall.libcommon.widget.SearchEditText
+            android:id="@+id/login_edit_phone"
+            style="@style/LoginEdit"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginRight="0dp"
+            android:background="@null"
+            android:hint="@string/login_hint_phone_edit"
+            android:imeOptions="actionNext"
+            android:inputType="phone"
+            android:maxLength="11"
+            android:singleLine="true"
+            android:text="@={viewmodel.loginParams.phoneNumber}"
+            app:layout_constraintBottom_toBottomOf="@+id/login_phone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/login_phone"
+            app:layout_constraintTop_toTopOf="@+id/login_phone" />
+
+        <TextView
+            android:id="@+id/login_code"
+            style="@style/LoginTextTrack"
+            android:text="@string/login_phone_code"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_phone" />
+
+        <com.mall.libcommon.widget.SearchEditText
+            android:id="@+id/login_edit_phone_code"
+            style="@style/LoginEdit"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_margin="0dp"
+            android:background="@null"
+            android:hint="@string/login_hint_phone_code_edit"
+            android:imeOptions="actionDone"
+            android:inputType="number"
+            android:maxLength="6"
+            android:singleLine="true"
+            android:text="@={viewmodel.loginParams.authCode}"
+            app:layout_constraintBottom_toBottomOf="@+id/login_code"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/login_code"
+            app:layout_constraintTop_toTopOf="@+id/login_code" />
+
+        <TextView
+            android:id="@+id/verification_code"
+            style="@style/HintText"
+            android:layout_width="45dp"
+            android:layout_height="0dp"
+            android:layout_marginEnd="25dp"
+            android:layout_marginRight="10dp"
+            android:gravity="center"
+            android:onClick="@{()->viewmodel.requestCode()}"
+            android:text="@{viewmodel.codeString}"
+            app:layout_constraintBottom_toBottomOf="@+id/login_edit_phone_code"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/login_edit_phone_code"
+            tools:text="@string/login_phone_code" />
+
+        <TextView
+            android:id="@+id/login"
+            style="@style/LoginBtn"
+            android:layout_margin="25dp"
+            android:background="@drawable/login_btn"
+            android:clickable="true"
+            android:focusable="true"
+            android:onClick="@{()->viewmodel.bindingMobileForTrack()}"
+            android:text="@string/login_bind_phone"
+            app:layout_constraintEnd_toEndOf="@+id/login_edit_phone_code"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/login_edit_phone_code" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
