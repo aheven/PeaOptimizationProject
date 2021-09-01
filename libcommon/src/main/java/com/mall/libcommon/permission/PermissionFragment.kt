@@ -3,30 +3,22 @@ package com.mall.libcommon.permission
 import android.annotation.TargetApi
 import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
-import android.util.SparseBooleanArray
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import java.util.*
 import kotlin.collections.ArrayList
-import kotlin.math.pow
 
 @TargetApi(Build.VERSION_CODES.M)
-class PermissionFragment() : Fragment(), Runnable {
+class PermissionFragment : Fragment(), Runnable {
     companion object {
         /** 请求的权限组  */
         private const val REQUEST_PERMISSIONS = "request_permissions"
-
-        /** 请求码（自动生成） */
-        private const val REQUEST_CODE = "request_code"
-
-        /** 权限请求码存放集合  */
-        private val REQUEST_CODE_ARRAY = SparseBooleanArray()
 
         fun beginRequest(
             activity: Activity,
@@ -36,14 +28,6 @@ class PermissionFragment() : Fragment(), Runnable {
         ) {
             val fragment = PermissionFragment()
             val bundle = Bundle()
-            var requestCode: Int
-            // 请求码随机生成，避免随机产生之前的请求码，必须进行循环判断
-            do {
-                requestCode = getRandomRequestCode()
-            } while (REQUEST_CODE_ARRAY[requestCode])
-            // 标记这个请求码已经被占用
-            REQUEST_CODE_ARRAY.put(requestCode, true)
-            bundle.putInt(REQUEST_CODE, requestCode)
             bundle.putStringArrayList(REQUEST_PERMISSIONS, ArrayList(permissions))
             fragment.arguments = bundle
             // 设置保留实例，不会因为屏幕方向或配置变化而重新创建
@@ -54,12 +38,6 @@ class PermissionFragment() : Fragment(), Runnable {
             fragment.setInterceptor(interceptor)
             // 绑定到 Activity 上面
             fragment.attachActivity(activity)
-        }
-
-        private fun getRandomRequestCode(): Int {
-            // 新版本的 Support 库限制请求码必须小于 65536
-            // 旧版本的 Support 库限制请求码必须小于 256
-            return Random().nextInt(2.0.pow(8.0).toInt())
         }
     }
 
@@ -78,6 +56,11 @@ class PermissionFragment() : Fragment(), Runnable {
     /** Activity 屏幕方向  */
     private var mScreenOrientation = 0
 
+    /** 权限跳转设置页回调 */
+    private var permissionContract: ActivityResultLauncher<String>? = null
+
+    /** 权限请求回调 */
+    private var permissionRequest: ActivityResultLauncher<Array<String>>? = null
 
     /**
      * 绑定 Activity
@@ -86,14 +69,29 @@ class PermissionFragment() : Fragment(), Runnable {
         activity as AppCompatActivity
         activity.supportFragmentManager.beginTransaction().add(this, this.toString())
             .commitAllowingStateLoss()
+        permissionContract = registerForActivityResult(PermissionContract()) {
+            if (this.activity == null || arguments == null || mDangerousRequest
+            ) {
+                return@registerForActivityResult
+            }
+            mDangerousRequest = true
+            // 需要延迟执行，不然有些华为机型授权了但是获取不到权限
+            requireActivity().window.decorView.postDelayed(this, 300)
+        }
+        permissionRequest =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+                requestPermissionsCallback(it)
+            }
     }
 
     /**
      * 解绑 Activity
      */
-    fun detachActivity(activity: Activity) {
+    private fun detachActivity(activity: Activity) {
         activity as AppCompatActivity
         activity.supportFragmentManager.beginTransaction().remove(this).commitAllowingStateLoss()
+        permissionContract?.unregister()
+        permissionContract = null
     }
 
     /**
@@ -153,10 +151,10 @@ class PermissionFragment() : Fragment(), Runnable {
         // 如果在 Activity 不可见的状态下添加 Fragment 并且去申请权限会导致授权对话框显示不出来
         // 所以必须要在 Fragment 的 onResume 来申请权限，这样就可以保证应用回到前台的时候才去申请权限
         if (mSpecialRequest) {
-            return;
+            return
         }
 
-        mSpecialRequest = true;
+        mSpecialRequest = true
         requestSpecialPermission()
     }
 
@@ -178,52 +176,32 @@ class PermissionFragment() : Fragment(), Runnable {
                 //当前必须是 Android 11 及以上版本，因为 hasStoragePermission 在旧版本是拿权限做的判断，所以这里需要多判断一次版本
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     //跳转到存储权限设置界面
-                    startActivityForResult(
-                        requireActivity().getStoragePermissionIntent(), requireArguments().getInt(
-                            REQUEST_CODE
-                        )
-                    )
+                    permissionContract?.launch(Permission.MANAGE_EXTERNAL_STORAGE)
                     requestSpecialPermission = true
                 }
             }
 
             if (permissions.contains(Permission.REQUEST_INSTALL_PACKAGES) && !requireActivity().isGrantedInstallPermission()) {
                 //跳转到安装权限设置页
-                startActivityForResult(
-                    requireActivity().getInstallPermissionIntent(), requireArguments().getInt(
-                        REQUEST_CODE
-                    )
-                )
+                permissionContract?.launch(Permission.REQUEST_INSTALL_PACKAGES)
                 requestSpecialPermission = true
             }
 
             if (permissions.contains(Permission.SYSTEM_ALERT_WINDOW) && !requireActivity().isGrantedWindowPermission()) {
                 //跳转到悬浮窗设置页
-                startActivityForResult(
-                    requireActivity().getWindowPermissionIntent(), requireArguments().getInt(
-                        REQUEST_CODE
-                    )
-                )
+                permissionContract?.launch(Permission.SYSTEM_ALERT_WINDOW)
                 requestSpecialPermission = true
             }
 
             if (permissions.contains(Permission.NOTIFICATION_SERVICE) && !requireActivity().isGrantedNotifyPermission()) {
                 // 跳转到通知栏权限设置页面
-                startActivityForResult(
-                    requireActivity().getNotifyPermissionIntent(), requireArguments().getInt(
-                        REQUEST_CODE
-                    )
-                )
+                permissionContract?.launch(Permission.NOTIFICATION_SERVICE)
                 requestSpecialPermission = true
             }
 
             if (permissions.contains(Permission.WRITE_SETTINGS) && !requireActivity().isGrantedSettingPermission()) {
                 // 跳转到系统设置权限设置页面
-                startActivityForResult(
-                    requireActivity().getSettingPermissionIntent(), requireArguments().getInt(
-                        REQUEST_CODE
-                    )
-                )
+                permissionContract?.launch(Permission.WRITE_SETTINGS)
                 requestSpecialPermission = true
             }
         }
@@ -239,7 +217,6 @@ class PermissionFragment() : Fragment(), Runnable {
      */
     private fun requestDangerousPermission() {
         if (activity == null || arguments == null) return
-        val requestCode = requireArguments().getInt(REQUEST_CODE)
         val allPermissions = requireArguments().getStringArrayList(REQUEST_PERMISSIONS)
         if (allPermissions.isNullOrEmpty()) return
 
@@ -256,7 +233,7 @@ class PermissionFragment() : Fragment(), Runnable {
         }
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || locationPermission.isNullOrEmpty()) {
-            requestPermissions(allPermissions.toTypedArray(), requestCode)
+            permissionRequest?.launch(allPermissions.toTypedArray())
             return
         }
 
@@ -273,31 +250,24 @@ class PermissionFragment() : Fragment(), Runnable {
                         override fun onGranted(permissions: List<String>, all: Boolean) {
                             if (!all || !isAdded) return
                             // 前台定位权限和后台定位权限都授予了
-
-                            // 前台定位权限和后台定位权限都授予了
-                            val grantResults = IntArray(allPermissions.size)
-                            Arrays.fill(grantResults, PackageManager.PERMISSION_GRANTED)
-                            onRequestPermissionsResult(
-                                requestCode,
-                                allPermissions.toTypedArray(),
-                                grantResults
-                            )
+                            val map = mutableMapOf<String, Boolean>()
+                            for (permission in permissions) {
+                                map[permission] = true
+                            }
+                            requestPermissionsCallback(map)
                         }
 
                         override fun onDenied(permissions: List<String>, never: Boolean) {
                             if (!isAdded) return
 
                             // 后台定位授权失败，但是前台定位权限已经授予了
-                            val grantResults = IntArray(allPermissions.size)
-                            for (i in allPermissions.indices) {
-                                grantResults[i] =
-                                    if (Permission.ACCESS_BACKGROUND_LOCATION == allPermissions[i]) PackageManager.PERMISSION_DENIED else PackageManager.PERMISSION_GRANTED
+
+                            val map = mutableMapOf<String, Boolean>()
+                            for (permission in permissions) {
+                                map[permission] =
+                                    Permission.ACCESS_BACKGROUND_LOCATION != permission
                             }
-                            onRequestPermissionsResult(
-                                requestCode,
-                                allPermissions.toTypedArray(),
-                                grantResults
-                            )
+                            requestPermissionsCallback(map)
                         }
                     })
             }
@@ -306,22 +276,17 @@ class PermissionFragment() : Fragment(), Runnable {
                 if (!isAdded) return
 
                 // 前台定位授权失败，并且无法申请后台定位权限
-                val grantResults = IntArray(allPermissions.size)
-                Arrays.fill(grantResults, PackageManager.PERMISSION_DENIED)
-                onRequestPermissionsResult(requestCode, allPermissions.toTypedArray(), grantResults)
+                val map = mutableMapOf<String, Boolean>()
+                for (permission in permissions) {
+                    map[permission] = false
+                }
+                requestPermissionsCallback(map)
             }
         })
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (activity == null || arguments == null || mCallBack == null || requestCode != requireArguments().getInt(
-                REQUEST_CODE
-            )
-        ) return
+    private fun requestPermissionsCallback(mutableMap: MutableMap<String, Boolean>) {
+        if (activity == null || arguments == null || mCallBack == null) return
 
         val callback: OnPermissionCallback = mCallBack!!
         mCallBack = null
@@ -329,12 +294,10 @@ class PermissionFragment() : Fragment(), Runnable {
         val interceptor = mInterceptor
         mInterceptor = null
 
-        for (i in permissions.indices) {
-            val permission = permissions[i]
-
+        for (permission in mutableMap.keys) {
+            // 如果这个权限是特殊权限，那么就重新进行权限检测
             if (isSpecialPermission(permission)) {
-                // 如果这个权限是特殊权限，那么就重新进行权限检测
-                grantResults[i] = requireActivity().getPermissionStatus(permission)
+                mutableMap[permission] = requireActivity().isGrantedPermission(permission)
                 continue
             }
 
@@ -343,61 +306,59 @@ class PermissionFragment() : Fragment(), Runnable {
                         || Permission.ACCESS_MEDIA_LOCATION == permission)
             ) {
                 // 如果当前版本不符合最低要求，那么就重新进行权限检测
-                grantResults[i] = requireActivity().getPermissionStatus(permission)
+                mutableMap[permission] = requireActivity().isGrantedPermission(permission)
                 continue
             }
 
             // 重新检查 Android 9.0 的一个新权限
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P && Permission.ACCEPT_HANDOVER == permission) {
                 // 如果当前版本不符合最低要求，那么就重新进行权限检测
-                grantResults[i] = requireActivity().getPermissionStatus(permission)
+                mutableMap[permission] = requireActivity().isGrantedPermission(permission)
                 continue
             }
 
             // 重新检查 Android 8.0 的两个新权限
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O && (Permission.ANSWER_PHONE_CALLS == permission || Permission.READ_PHONE_NUMBERS == permission)) {
                 // 如果当前版本不符合最低要求，那么就重新进行权限检测
-                grantResults[i] = requireActivity().getPermissionStatus(permission)
+                mutableMap[permission] = requireActivity().isGrantedPermission(permission)
             }
         }
 
-        // 释放对这个请求码的占用
-        REQUEST_CODE_ARRAY.delete(requestCode)
         detachActivity(requireActivity())
 
         // 获取已授予的权限
-        val grantedPermission = getGrantedPermissions(permissions, grantResults)
+        val grantedPermission = mutableMap.filter { it.value }
 
         // 如果请求成功的权限集合大小和请求的数组一样大时证明权限已经全部授予
-        if (grantedPermission.size == permissions.size) {
+        if (grantedPermission.size == mutableMap.size) {
             if (interceptor != null) {
                 // 代表申请的所有的权限都授予了
                 interceptor.grantedPermissions(
                     requireActivity(),
                     callback,
-                    grantedPermission,
+                    grantedPermission.keys.toList(),
                     true
                 )
             } else {
-                callback.onGranted(grantedPermission, true)
+                callback.onGranted(grantedPermission.keys.toList(), true)
             }
             return
         }
 
         // 获取被拒绝的权限
-        val deniedPermission = getDeniedPermissions(permissions, grantResults)
+        val deniedPermission = mutableMap.filter { !it.value }
         if (interceptor != null) {
             // 代表申请的权限中有不同意授予的，如果有某个权限被永久拒绝就返回 true 给开发人员，让开发者引导用户去设置界面开启权限
             interceptor.deniedPermissions(
                 requireActivity(),
                 callback,
-                deniedPermission,
-                requireActivity().isPermissionPermanentDenied(deniedPermission)
+                deniedPermission.keys.toList(),
+                requireActivity().isPermissionPermanentDenied(deniedPermission.keys.toList())
             )
         } else {
             callback.onDenied(
-                deniedPermission,
-                requireActivity().isPermissionPermanentDenied(deniedPermission)
+                deniedPermission.keys.toList(),
+                requireActivity().isPermissionPermanentDenied(deniedPermission.keys.toList())
             )
         }
 
@@ -407,25 +368,13 @@ class PermissionFragment() : Fragment(), Runnable {
                 interceptor.grantedPermissions(
                     requireActivity(),
                     callback,
-                    grantedPermission,
+                    grantedPermission.keys.toList(),
                     false
                 )
             } else {
-                callback.onGranted(grantedPermission, false)
+                callback.onGranted(grantedPermission.keys.toList(), false)
             }
         }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        if (activity == null || arguments == null || requestCode != requireArguments().getInt(
-                REQUEST_CODE
-            ) || mDangerousRequest
-        ) {
-            return
-        }
-        mDangerousRequest = true
-        // 需要延迟执行，不然有些华为机型授权了但是获取不到权限
-        requireActivity().window.decorView.postDelayed(this, 300)
     }
 
     override fun run() {
